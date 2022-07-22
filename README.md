@@ -1,0 +1,1 @@
+A small project to visualize the global suicide rates.
