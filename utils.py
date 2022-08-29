@@ -1,10 +1,13 @@
-from typing import Iterator, List
+from typing import Iterator, List, Set
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt 
 import cartopy
 from cartopy.io import shapereader
+from cartopy.crs import CRS
 import pandas as pd
+
+
 
 # cartopy constants
 GLOBAL_EXTEND_EXCLUDE_ANTACTICA = (-180, 180, -60, 90)
@@ -97,6 +100,39 @@ def countries_iterator() -> Iterator[shapereader.Record]:
     reader = shapereader.Reader(shpfilename)
     countries = reader.records()
     return countries
+
+
+def apply_color_to_country(color: str, country: shapereader.Record, ax: plt.Axes, crs: CRS) -> None:
+    ax.add_geometries([country.geometry],  # NOTE: expecting a sequence of geometry, so use list
+                      crs(),
+                      facecolor=color,
+                      label=country.attributes['ADM0_A3'])
+
+
+
+# data helper functions
+def get_country_name_in_data(name_in_map: str, data: pd.DataFrame) -> str:
+    assert 'Location' in data.columns
+    result = ''
+    if name_in_map in set(data.Location.unique()):
+        result = name_in_map 
+    # if name_in_map in names_map_to_data:
+    if name_in_map in NAMES_MAP_TO_DATA:
+        result = NAMES_MAP_TO_DATA[name_in_map] 
+    return result
+
+
+def get_suicide_rate(country_name: str, data: pd.DataFrame) -> float:
+    assert 'Location' in data.columns
+    assert 'Float_Value' in data.columns
+    result = -1 # dummy value for non-existing result
+    row = data[data.Location == country_name]
+    if not row.empty:
+        result = row.Float_Value.to_list()[0]
+    return result
+# assert get_country_name_in_data('Ireland', both_sexes_2019) == 'Ireland'
+
+
 
 # TODO: maybe this should not be in util
 # utils for data
