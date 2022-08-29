@@ -9,6 +9,37 @@ import pandas as pd
 GLOBAL_EXTEND_EXCLUDE_ANTACTICA = (-180, 180, -60, 90)
 
 
+# some country names in WHO's csv data file is not the same as those in Cartopy
+NAMES_DATA_TO_MAP = {
+    'Bahamas': 'The Bahamas',
+    'Bolivia (Plurinational State of)': 'Bolivia',
+    'Brunei Darussalam': 'Brunei',
+    'Congo': 'Republic of the Congo',
+    'Czechia': 'Czech Republic',
+    'Côte d’Ivoire': 'Ivory Coast',
+    'China': "People's Republic of China",
+    "Democratic People's Republic of Korea": 'North Korea',
+    'Eswatini': 'Eswatini',
+    'Gambia': 'The Gambia',
+    'Iran (Islamic Republic of)': 'Iran',
+    "Lao People's Democratic Republic": 'Laos',
+    'Republic of Moldova': 'Moldova',
+    'Russian Federation': 'Russia',
+    'Republic of Korea': 'South Korea',
+    'Syrian Arab Republic': 'Syria',
+    'The former Yugoslav Republic of Macedonia': 'North Macedonia',
+    'Timor-Leste': 'East Timor',
+    'Türkiye': 'Turkey',
+    'United Kingdom of Great Britain and Northern Ireland': 'United Kingdom',
+    'United Republic of Tanzania': 'Tanzania',
+    'United States of America': 'United States of America',
+    'Venezuela (Bolivarian Republic of)': 'Venezuela',
+    'Viet Nam': 'Vietnam'
+}
+
+NAMES_MAP_TO_DATA = {value: key for (key, value) in NAMES_DATA_TO_MAP.items()}
+
+
 # utils for cartopy
 def add_basic_map_features(ax: plt.Axes) -> None:
     ax.coastlines()
