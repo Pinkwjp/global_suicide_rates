@@ -6,10 +6,11 @@ import cartopy
 from cartopy.io import shapereader
 import pandas as pd
 
-
+# cartopy constants
 GLOBAL_EXTEND_EXCLUDE_ANTACTICA = (-180, 180, -60, 90)
 
 
+# data constants
 # some country names in WHO's csv data file is not the same as those in Cartopy
 NAMES_DATA_TO_MAP = {
     'Bahamas': 'The Bahamas',
@@ -41,7 +42,22 @@ NAMES_DATA_TO_MAP = {
 NAMES_MAP_TO_DATA = {value: key for (key, value) in NAMES_DATA_TO_MAP.items()}
 
 
+# data cleaning and preprocessing
+def extract_float_value(value_and_range: str) -> float:
+    """
+    extract float value from Value column
 
+    for example:
+    input: "0.16 [0.11 - 0.22]"
+    output: 0.16
+    """
+    return float(value_and_range.split(maxsplit=1)[0])
+
+assert extract_float_value("0.16 [0.11 - 0.22]") == 0.16
+assert extract_float_value("0 [0 – 0]") == 0
+
+
+# visualizing
 def make_scalar_colorbar(bounds: List[int], 
                          color_names: List[str], 
                          ax: plt.Axes, 
@@ -60,7 +76,7 @@ def make_scalar_colorbar(bounds: List[int],
 
 
 
-# for cartopy
+# cartopy helper functions
 def add_basic_map_features(ax: plt.Axes) -> None:
     ax.coastlines()
     ax.add_feature(cartopy.feature.OCEAN)
