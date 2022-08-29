@@ -1,5 +1,6 @@
-from typing import Iterator
+from typing import Iterator, List
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt 
 import cartopy
 from cartopy.io import shapereader
@@ -40,7 +41,26 @@ NAMES_DATA_TO_MAP = {
 NAMES_MAP_TO_DATA = {value: key for (key, value) in NAMES_DATA_TO_MAP.items()}
 
 
-# utils for cartopy
+
+def make_scalar_colorbar(bounds: List[int], 
+                         color_names: List[str], 
+                         ax: plt.Axes, 
+                         **kwargs) -> None:
+    assert bounds == sorted(bounds)
+    assert len(color_names) >= (len(bounds) - 1) 
+    cmap = mpl.colors.ListedColormap(color_names)
+    norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+    sm = plt.cm.ScalarMappable(norm=norm, cmap=cmap)
+    plt.colorbar(sm, ax=ax, **kwargs) 
+
+# color_bound_obj = ColorBound(100)
+# ax = plt.subplot()
+# make_scalar_colorbar(color_bound_obj.get_bounds(), color_bound_obj.get_colors(), ax)
+# plt.show()
+
+
+
+# for cartopy
 def add_basic_map_features(ax: plt.Axes) -> None:
     ax.coastlines()
     ax.add_feature(cartopy.feature.OCEAN)
