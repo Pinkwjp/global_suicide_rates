@@ -43,7 +43,7 @@ NAMES_MAP_TO_DATA = {value: key for (key, value) in NAMES_DATA_TO_MAP.items()}
 
 
 # data cleaning and preprocessing
-def extract_float_value(value_and_range: str) -> float:
+def extract_value(value_and_range: str) -> float:
     """
     extract float value from Value column
 
@@ -53,8 +53,8 @@ def extract_float_value(value_and_range: str) -> float:
     """
     return float(value_and_range.split(maxsplit=1)[0])
 
-assert extract_float_value("0.16 [0.11 - 0.22]") == 0.16
-assert extract_float_value("0 [0 – 0]") == 0
+assert extract_value("0.16 [0.11 - 0.22]") == 0.16
+assert extract_value("0 [0 – 0]") == 0
 
 
 # visualizing
