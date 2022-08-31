@@ -46,6 +46,7 @@ NAMES_MAP_TO_DATA = {value: key for (key, value) in NAMES_DATA_TO_MAP.items()}
 
 
 # data cleaning and preprocessing
+# TODO: replace with something like this: format = lambda x: '%.2f' % x
 def extract_value(value_and_range: str) -> float:
     """
     extract float value from Value column
