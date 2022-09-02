@@ -1,4 +1,4 @@
-from typing import Iterator, List, Set
+from typing import Iterator, List, Union
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt 
@@ -13,9 +13,11 @@ import pandas as pd
 GLOBAL_EXTEND_EXCLUDE_ANTACTICA = (-180, 180, -60, 90)
 
 
-# data constants
-# some country names in WHO's csv data file is not the same as those in Cartopy
+
+
+# data cleaning and preprocessing utils
 NAMES_DATA_TO_MAP = {
+    # some country names in WHO's csv data file is not the same as those in Cartopy
     'Bahamas': 'The Bahamas',
     'Bolivia (Plurinational State of)': 'Bolivia',
     'Brunei Darussalam': 'Brunei',
@@ -45,7 +47,6 @@ NAMES_DATA_TO_MAP = {
 NAMES_MAP_TO_DATA = {value: key for (key, value) in NAMES_DATA_TO_MAP.items()}
 
 
-# data cleaning and preprocessing
 def extract_value(value_and_range: str) -> float:
     """
     extract float value from Value column
@@ -60,7 +61,9 @@ assert extract_value("0.16 [0.11 - 0.22]") == 0.16
 assert extract_value("0 [0 – 0]") == 0
 
 
-# visualizing
+
+
+# visualizing utils
 def make_scalar_colorbar(bounds: List[int], 
                          color_names: List[str], 
                          ax: plt.Axes, 
@@ -79,7 +82,8 @@ def make_scalar_colorbar(bounds: List[int],
 
 
 
-# cartopy helper functions
+
+# cartopy utils
 def add_basic_map_features(ax: plt.Axes) -> None:
     ax.coastlines()
     ax.add_feature(cartopy.feature.OCEAN)
@@ -109,8 +113,45 @@ def apply_color_to_country(color: str, country: shapereader.Record, ax: plt.Axes
                       label=country.attributes['ADM0_A3'])
 
 
+class ColorBounder:
+    """a helper class to match a color for a certain value"""
+    def __init__(self, colors: List[str], bounds: List[int]) -> None:
+        """
+        colors - color names
+        bounds - in increasing order
 
-# data helper functions
+        note:
+        for values below the lower bound, the color is 'silver' 
+        """
+        assert len(colors) == len(set(colors))
+        assert len(bounds) == len(set(bounds))
+        assert len(colors) == len(bounds)
+        assert bounds == sorted(list(bounds))
+        assert 'silver' not in set(colors)
+        self._colors = ['silver'] + list(colors)
+        self._bounds = pd.Series(bounds)
+
+    def find_color(self, x: Union[float, int]) -> str:
+        """
+        if x < bounds[0], matches 'silver'
+        if bounds[i] <= x < bounds[i+1], matches color[i] 
+        if bounds[-1] <= x, matches color[-1]
+        """
+        return self._colors[self._bounds.searchsorted(x, side='right')]
+
+cs = ['green', 'yellow', 'red']
+bs = [0, 10, 20]
+color_bounder = ColorBounder(cs, bs)
+assert color_bounder.find_color(-1) == 'silver'
+assert color_bounder.find_color(0) == 'green'
+assert color_bounder.find_color(10) == 'yellow'
+assert color_bounder.find_color(15) == 'yellow'
+assert color_bounder.find_color(100) == 'red'
+
+
+
+
+# data utils
 def get_country_name_in_data(name_in_map: str, data: pd.DataFrame) -> str:
     assert 'Location' in data.columns
     result = ''
@@ -130,23 +171,3 @@ def get_suicide_rate(country_name: str, data: pd.DataFrame) -> float:
     if not row.empty:
         result = row.Float_Value.to_list()[0]
     return result
-# assert get_country_name_in_data('Ireland', both_sexes_2019) == 'Ireland'
-
-
-
-# TODO: maybe this should not be in util
-# utils for data
-def get_country_suicide_rate(country_name: str, data: pd.DataFrame) -> float:
-    """
-    return suicide rate of a country 
-    
-    Note: 
-    return -1, if the country name doesn't exist in data.
-    """
-    assert 'Location' in data.columns
-    assert 'Value' in data.columns
-    country_df = data[data.Location == country_name]
-    if country_df.empty:
-        return -1
-    return country_df.Value.to_list()[0]
-
